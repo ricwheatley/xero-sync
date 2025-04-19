@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XeroSync.Worker", "XeroSync
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XeroSync.Desktop", "XeroSync.Desktop\XeroSync.Desktop.csproj", "{44E2FCCF-AB13-4CD4-B2CB-315EDA6CE348}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XeroSync.Auth", "XeroSync.Auth\XeroSync.Auth.csproj", "{65D15376-9B46-4291-BB35-443008E216B0}"
+EndProject
 Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -46,5 +48,17 @@ Global
 		{44E2FCCF-AB13-4CD4-B2CB-315EDA6CE348}.Release|x64.Build.0 = Release|Any CPU
 		{44E2FCCF-AB13-4CD4-B2CB-315EDA6CE348}.Release|x86.ActiveCfg = Release|Any CPU
 		{44E2FCCF-AB13-4CD4-B2CB-315EDA6CE348}.Release|x86.Build.0 = Release|Any CPU
+		{65D15376-9B46-4291-BB35-443008E216B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{65D15376-9B46-4291-BB35-443008E216B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{65D15376-9B46-4291-BB35-443008E216B0}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{65D15376-9B46-4291-BB35-443008E216B0}.Debug|x64.Build.0 = Debug|Any CPU
+		{65D15376-9B46-4291-BB35-443008E216B0}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{65D15376-9B46-4291-BB35-443008E216B0}.Debug|x86.Build.0 = Debug|Any CPU
+		{65D15376-9B46-4291-BB35-443008E216B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{65D15376-9B46-4291-BB35-443008E216B0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{65D15376-9B46-4291-BB35-443008E216B0}.Release|x64.ActiveCfg = Release|Any CPU
+		{65D15376-9B46-4291-BB35-443008E216B0}.Release|x64.Build.0 = Release|Any CPU
+		{65D15376-9B46-4291-BB35-443008E216B0}.Release|x86.ActiveCfg = Release|Any CPU
+		{65D15376-9B46-4291-BB35-443008E216B0}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
