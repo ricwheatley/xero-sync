@@ -2,7 +2,7 @@
 using System.Data;
 using System.Windows;
 
-namespace MyNet8AppLauncher;
+namespace XeroSync.Desktop;
 
 /// <summary>
 /// Interaction logic for App.xaml

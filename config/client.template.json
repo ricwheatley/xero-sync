@@ -1,6 +1,7 @@
 {
-    "ClientId":     "73DBAD44D2C249C5A386551446CC3851",
-    "ClientSecret": "eaANAx0Pkyo5m-fc5UcGK0ecL7d5khqhOTvSgJ8uMtFSDTG1",
-    "RedirectUri":  "http://localhost:5000/callback"
+    "ClientId":     "<ENTER_CLIENT_ID_HERE",
+    "ClientSecret": "<ENTER_CLIENT_SECRET_HERE>",
+    "RedirectUri":  "<ENTER_REDIRECT_URI_HERE>",
+    "SqlConn" :     "<ENTER_SQL_CONNECTION_STRING_HERE>"
   }
   

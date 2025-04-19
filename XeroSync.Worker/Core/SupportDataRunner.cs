@@ -94,7 +94,11 @@ namespace XeroSync.Worker.Core
                 var itemsArray = jsonNode?[endpoint] as JsonArray;
                 if (itemsArray is { } nonNull)
                 {
-                    allItems.AddRange(nonNull.Cast<JsonNode>());
+                    foreach (var element in nonNull)
+                    {
+                        if (element is not null)
+                            allItems.Add(element.DeepClone());   // avoid re‑parenting
+                    }
                     totalPages = jsonNode?[
                         "pagination"]?["pageCount"]?.GetValue<int>() ?? 1;
                 }

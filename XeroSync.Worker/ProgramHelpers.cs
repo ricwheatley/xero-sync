@@ -119,8 +119,17 @@ namespace XeroSync.Worker
 
     public static class Configuration
     {
-        public static string GetConnectionString(string _) =>
-            Environment.GetEnvironmentVariable("XERO_SQL_CONN")
-            ?? throw new Exception("Environment variable XERO_SQL_CONN not set");
+        public static string GetConnectionString(string _)
+        {
+            var env = Environment.GetEnvironmentVariable("XERO_SQL_CONN");
+            if (!string.IsNullOrWhiteSpace(env)) return env;
+
+            var json = JsonNode.Parse(
+                File.ReadAllText(Path.Combine("config", "client.json")));
+            return json?["SqlConn"]?.GetValue<string>()
+                ?? json?["sql_conn"]?.GetValue<string>()
+                ?? throw new Exception("No SQL connection string found.");
+        }
+
     }
 }

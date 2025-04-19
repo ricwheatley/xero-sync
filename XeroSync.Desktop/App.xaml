@@ -1,7 +1,7 @@
-﻿<Application x:Class="MyNet8AppLauncher.App"
+﻿<Application x:Class="XeroSync.Desktop.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:MyNet8AppLauncher"
+             xmlns:local="clr-namespace:XeroSync.Desktop"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
          
