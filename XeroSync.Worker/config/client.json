@@ -1,0 +1,6 @@
+{
+    "ClientId":     "73DBAD44D2C249C5A386551446CC3851",
+    "ClientSecret": "eaANAx0Pkyo5m-fc5UcGK0ecL7d5khqhOTvSgJ8uMtFSDTG1",
+    "RedirectUri":  "http://localhost:5000/callback"
+  }
+  
