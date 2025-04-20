@@ -3,9 +3,14 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
+
+  <!-- project refs -->
+  <ItemGroup>
+    <ProjectReference Include="..\\XeroSync.Worker\\XeroSync.Worker.csproj" />
+    <ProjectReference Include="..\\XeroSync.Auth\\XeroSync.Auth.csproj" />
+  </ItemGroup>
 
 </Project>
