@@ -1,42 +1,60 @@
 # XeroSync
 
-**XeroSync** is a .NET 8 worker‑service that pulls data from the Xero Accounting API and stores it in a SQL Server database for reporting, BI, and downstream processing. It is designed to run unattended on Windows or Linux, refreshing its access token automatically and processing both day‑to‑day endpoints and monthly financial reports.
+XeroSync is a **.NET 8** solution that keeps a Xero tenant and a SQL Server (or Azure SQL) warehouse in sync for BI and forecasting work.
 
-The repository also includes a tiny **AuthListener** helper that performs the once‑off OAuth 2.0 authorisation flow, writing an encrypted `token.dat` so the worker can operate head‑less thereafter, plus a WPF **Desktop Launcher** for manual starts.
+<table>
+<tr><td width="33%">
+<b>Worker</b><br/>
+Console app that performs the heavy lifting – it refreshes its access token automatically, downloads day‑to‑day endpoints and monthly financial reports, and writes raw JSON + processed tables.
+</td><td width="33%">
+<b>Auth Listener</b><br/>
+Single‑run helper that completes the OAuth authorisation flow and writes an encrypted <code>token.dat</code> so the Worker can run head‑less thereafter.
+</td><td width="33%">
+<b>Desktop Launcher</b><br/>
+A tiny WPF front‑end for people who prefer a window over a terminal.  Lets you choose what to run, pick the FY range, select a tenant GUID, and watch a live log.
+</td></tr></table>
 
 ---
 
 ## Repository layout
 
 ```
-XeroSync.sln                Solution file with Worker, Auth, Desktop projects
+XeroSync.sln                – solution file (Worker, Auth, Desktop)
 │
-├── XeroSync.Worker/        Core worker service (console)
-│   └── Core/               – runners, orchestrator, helpers
-│   └── Services/           – TokenStore, XeroReportFetcher, …
+├── XeroSync.Worker/        – core worker service
+│   └── Core/               – runners, orchestrator, helpers
+│   └── Services/           – TokenStore, XeroReportFetcher, …
 │
-├── XeroSync.Auth/          One‑time bootstrap tool (interactive OAuth)
-│   └── AuthListener.cs
+├── XeroSync.Auth/          – one‑time OAuth bootstrap
 │
-├── XeroSync.Desktop/       Optional WPF launcher (not the refactor focus)
+├── XeroSync.Desktop/       – WPF launcher (manual runs)
+│     └── Assets/           – logo & icon
 │
 └── config/
-    ├── client.template.json  ← sample secrets file (copy to client.json)
-    └── token.dat             ← generated after first authorisation (ignored)
+      ├── client.template.json  ←  copy to client.json, add secrets
+      ├── uiSettings.json       ←  persisted Desktop UI choices
+      └── token.dat             ←  encrypted after first auth (ignored)
 ```
 
 ---
 
-## Prerequisites
+## Desktop launcher (new!)
 
-| Tool           | Version | Notes |
-|----------------|---------|-------|
-| [.NET SDK]     | **8.0** | `dotnet --version` should report ≥ 8.0.100 |
-| SQL Server     | 2017+   | Local or Azure SQL DB |
-| Git            | any     | Clone / commit |
-| Browser        | any     | For the OAuth consent screen |
+`XeroSync.Desktop` is meant for book‑keepers and accountants who don’t keep a terminal open.
 
-[.NET SDK]: https://dotnet.microsoft.com/download
+| Control | Purpose |
+|---------|---------|
+| **Run mode** dropdown | `SupportData`, `Reports`, or `Both` (default) |
+| **Start / End FY dates** | Two `DatePicker`s; defaults to current FY. |
+| **Tenant GUID** | Populated from <code>uiSettings.json</code> after your first successful run. |
+| **Run** button | Starts the sync and streams log lines into the **280‑px‑high** console area. |
+| **Close** button | Exits the app (enabled as soon as a run finishes). |
+
+The main window is **520 px high** to accommodate the larger log pane.
+
+All settings (last run mode, dates, tenant) are persisted to `config/uiSettings.json` so the next launch is pre‑filled.
+
+> **Tip:** You can still pass `--support` or `--reports` on the command line to skip the UI entirely.
 
 ---
 
@@ -49,61 +67,39 @@ XeroSync.sln                Solution file with Worker, Auth, Desktop projects
 
 # 2  Create secrets file
 > cp config/client.template.json config/client.json
-#   – edit ClientId / ClientSecret (from Xero Dev portal)
-#   – leave RefreshToken blank for now
+#   – edit ClientId / ClientSecret from Xero Dev Portal
 
-# 3  Bootstrap tokens once
-> dotnet run --project XeroSync.Auth           # opens browser, writes token.dat
+# 3  Bootstrap once
+> dotnet run --project XeroSync.Auth    # opens browser, writes token.dat
 
-# 4  Run the worker (support + reports for FY24‑25)
+# 4a  Run head‑less (support + reports for FY‑24/25)
 > setx XERO_SQL_CONN "Server=.;Database=XeroSync;Trusted_Connection=True;Encrypt=False;"
 > dotnet run --project XeroSync.Worker -- both 2024-04-01 2025-03-31
+
+# 4b  …or launch the Desktop app
+> dotnet run --project XeroSync.Desktop
 ```
 
-The first run will:
-1. Reuse the `token.dat` written by **AuthListener**
-2. Discover the tenant, sync eight standard endpoints, then loop through monthly financial reports.
-
-Subsequent runs need only step 4 – the token is refreshed automatically.
+> Subsequent runs need only step 4 – the token is refreshed automatically.
 
 ---
 
 ## Configuration reference
 
-### `config/client.json`
-
-| Key              | Required | Description |
-|------------------|----------|-------------|
-| `ClientId` / `client_id`         | ✓ | Xero app Client ID |
-| `ClientSecret` / `client_secret` | ✓ | Xero app Client Secret |
-| `RefreshToken` / `refresh_token` | (once) | Bootstrap token written manually or by AuthListener. Safe to delete after `token.dat` exists. |
-| `SqlConn` / `sql_conn`           | optional | Falls back if `XERO_SQL_CONN` env‑var not set |
-
-### Environment variables
-
-| Variable          | When needed | Example value |
-|-------------------|-------------|---------------|
-| `XERO_SQL_CONN`   | always      | `Server=.;Database=XeroSync;Trusted_Connection=True;` |
-| `XERO_CLIENT_ID`  | (CI)        | overrides `client.json` |
-| `XERO_CLIENT_SECRET` | (CI)     | overrides `client.json` |
-| `XERO_REFRESH_TOKEN` | bootstrap | alternative to putting it in JSON |
-
-### Command‑line
-
-```bash
-# Run just support‑data endpoints
-> dotnet run --project XeroSync.Worker -- support
-
-# Run only financial reports for FY‑23
-> dotnet run --project XeroSync.Worker -- reports 2023-04-01 2024-03-31
-```
+| File / var | When used | Notes |
+|------------|-----------|-------|
+| **config/client.json** | always | `ClientId`, `ClientSecret`, optional `SqlConn`, optional bootstrap `RefreshToken` |
+| **config/uiSettings.json** | by Desktop app | remembers last run mode, dates, tenant GUID |
+| **XERO_SQL_CONN** env‑var | worker runs | overrides `SqlConn` in JSON |
+| **token.dat** | after first auth | machine‑specific, encrypted with DPAPI on Windows |
 
 ---
 
-## CI/CD guidance
+## CI/CD cheatsheet
 
-1. **Secret variables** – store the four env‑vars above in your pipeline secret store.
+1. **Secrets** – store the four env‑vars (`XERO_*` + `SQL`) in your pipeline secret store.
 2. **Build** – compile Worker & Auth projects:
+
    ```yaml
    - task: DotNetCoreCLI@2
      inputs:
@@ -112,28 +108,23 @@ Subsequent runs need only step 4 – the token is refreshed automatically.
          **/XeroSync.Worker.csproj
          **/XeroSync.Auth.csproj
    ```
-3. **Bootstrap step** (self‑hosted agent only): run AuthListener once if `token.dat` isn’t cached on the runner.
-4. **Scheduled run** – cron a daily `dotnet XeroSync.Worker.dll -- both` task.
+3. **Bootstrap** – run AuthListener once on a self‑hosted agent to produce `token.dat`.
+4. **Schedule** – cron a daily `dotnet XeroSync.Worker.dll -- both` job.
 
 ---
 
 ## Security notes
 
-* `token.dat` is encrypted with Windows DPAPI (CurrentUser scope). On non‑Windows hosts it falls back to plain‑text (you can swap DPAPI for Azure Key Vault or GCP KMS).
-* `.gitignore` excludes both `token.dat` and `client.json`. Never commit real secrets.
-
----
-
-## Contributing
-
-1. **Fork** the repo ↗️
-2. Create a feature branch: `git checkout -b feature/your‑idea`
-3. Run `dotnet format` before pushing.
-4. Open a Pull Request – small, focused changes are easier to review.
+* `token.dat` is DPAPI‑encrypted on Windows; plaintext fallback on Linux (swap in a cloud KMS if needed).
+* `.gitignore` excludes `token.dat`, `client.json`, and other secrets.
 
 ---
 
 ## Licence
 
-MIT – see `LICENSE` file for details.
+MIT – see `LICENSE`.
+
+---
+
+
 
