@@ -485,3 +485,4 @@ $RECYCLE.BIN/
 
 config/token.dat
 config/client.json
+config/ui-settings.json
